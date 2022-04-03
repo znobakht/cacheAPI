@@ -1,7 +1,11 @@
 import {Document, Schema, model} from "mongoose";
 import {appConf} from "../config/app"
+/**every cache object has two fields (except _id): 
+ * text: the message of cache.
+ * expire: when the cache object has to been deleted.
+ */
 interface cacheInterface extends Document {
-  text: string;
+  text: string; 
   expire: Date;
 }
 

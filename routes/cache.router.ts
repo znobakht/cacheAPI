@@ -1,8 +1,15 @@
 import * as express from "express";
+/**using TTLAmount which defined in appConf */
 import { appConf } from "../config/app";
 const router = express.Router();
 
 import cacheModel from "../models/cache.model";
+
+/**in the beginning, check if the id exists,
+ * the expire will update and object will return.
+ * else, generating a random text and creating a new cache object with 
+ * given id and the random text.
+ */
 router.get("/:id", async (req, res) => {
   try {
     let cacheObject = await cacheModel.findById(req.params.id);
@@ -20,6 +27,9 @@ router.get("/:id", async (req, res) => {
     return res.status(500).send(err.message);
   }
 });
+/**in the beginning, check if the body has text or not.
+ * if yes, creates the new cache object and sends it back.
+ */
 router.post("/", async (req, res) => {
   try {
     if (!req?.body?.text) {
@@ -33,6 +43,9 @@ router.post("/", async (req, res) => {
     return res.status(500).send(err.message);
   }
 });
+/**in the beginning, check if the body has text or not.
+ * if yes, searches for the given object and updates it's text and expire if exists.
+ */
 router.put("/:id", async (req, res) => {
   try {
     if (!req?.body?.text) {
@@ -51,6 +64,7 @@ router.put("/:id", async (req, res) => {
     return res.status(500).send(err.message);
   }
 });
+/**if the object exists, deletes it */
 router.delete("/:id", async (req, res) => {
   try {
     let cacheObject = await cacheModel.findByIdAndDelete(req.params.id);
@@ -63,6 +77,7 @@ router.delete("/:id", async (req, res) => {
     return res.status(500).send(err.message);
   }
 });
+/**sends back all cache objects */
 router.get("/", async (req, res) =>{
   try {
     const objects = await cacheModel.find();
@@ -74,6 +89,7 @@ router.get("/", async (req, res) =>{
     return res.status(500).send(err.message);
   }
 })
+/**deletes all cache objects */
 router.delete("/", async (req, res) =>{
   try {
     await cacheModel.deleteMany();

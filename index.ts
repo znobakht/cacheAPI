@@ -8,8 +8,10 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
+/**adds cache end point. */
 app.use("/cache", cacheRouter);
+
+/**connects to database */
 connect(mongoConf.dbAddress)
   .then(() => {
     console.log(`connected to mongo at ${mongoConf.dbAddress} address`);
@@ -18,6 +20,7 @@ connect(mongoConf.dbAddress)
     console.error(err);
   });
 
+  /**runs server */
 app.listen(appConf.port, () => {
   console.log(`server is running on port ${appConf.port}`);
 });
