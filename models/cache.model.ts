@@ -3,6 +3,8 @@ import {appConf} from "../config/app"
 /**every cache object has two fields (except _id): 
  * text: the message of cache.
  * expire: when the cache object has to been deleted.
+ *As mentioned in the assignment explanation,
+  after the expiry time, the cache will be deleted from database.
  */
 interface cacheInterface extends Document {
   text: string; 
