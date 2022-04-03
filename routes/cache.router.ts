@@ -4,24 +4,31 @@ import { appConf } from "../config/app";
 const router = express.Router();
 
 import cacheModel from "../models/cache.model";
-
 /**in the beginning, check if the id exists,
  * the expire will update and object will return.
- * else, generating a random text and creating a new cache object with 
+ * else, if the number of caches are exceeding numOfCache,
+ * deletes the oldest.
+ * now generating a random text and creating a new cache object with
  * given id and the random text.
  */
 router.get("/:id", async (req, res) => {
   try {
-    let cacheObject = await cacheModel.findById(req.params.id);
+    let cacheObject: any = await cacheModel.findById(req.params.id);
     if (cacheObject) {
-      console.log('cacheHit')
+      console.log("cacheHit");
       cacheObject.expire = Date.now() + appConf.TTLAmount;
       await cacheObject.save();
       return res.json(cacheObject);
     }
 
-    console.log('cacheMiss');
+    console.log("cacheMiss");
     const text = (Math.random() + 1).toString(36).substring(7);
+    const count = await cacheModel.count();
+    if (count >= appConf.numOfCacheObjects) {
+      const objects = await cacheModel.find().sort({ expire: 1 }).limit(1);
+      cacheObject = objects[0];
+      cacheObject.delete();
+    }
     cacheObject = await cacheModel.create({ _id: req.params.id, text });
     return res.json(cacheObject);
   } catch (err) {
@@ -30,12 +37,21 @@ router.get("/:id", async (req, res) => {
   }
 });
 /**in the beginning, check if the body has text or not.
- * if yes, creates the new cache object and sends it back.
+ * if yes, 
+ * now, if the number of caches are exceeding numOfCache,
+ * deletes the oldest 
+ * then creates the new cache object and sends it back.
  */
 router.post("/", async (req, res) => {
   try {
     if (!req?.body?.text) {
       return res.status(400).json({ message: "text is required" });
+    }
+    const count = await cacheModel.count();
+    if (count >= appConf.numOfCacheObjects) {
+      const objects = await cacheModel.find().sort({ expire: 1 }).limit(1);
+      const cacheObject = objects[0];
+      cacheObject.delete();
     }
     const text = req.body.text;
     const cacheObject = await cacheModel.create({ text });
@@ -73,35 +89,33 @@ router.delete("/:id", async (req, res) => {
     if (!cacheObject) {
       return res.status(400).json({ message: "cache object not found" });
     }
-    return res.status(200).json({ message: "cache object deleted", cacheObject });
+    return res
+      .status(200)
+      .json({ message: "cache object deleted", cacheObject });
   } catch (err) {
     console.error(err);
     return res.status(500).send(err.message);
   }
 });
 /**sends back all cache objects */
-router.get("/", async (req, res) =>{
+router.get("/", async (req, res) => {
   try {
     const objects = await cacheModel.find();
-    return res
-      .status(200)
-      .json(objects);
+    return res.status(200).json(objects);
   } catch (err) {
     console.error(err);
     return res.status(500).send(err.message);
   }
-})
+});
 /**deletes all cache objects */
-router.delete("/", async (req, res) =>{
+router.delete("/", async (req, res) => {
   try {
     await cacheModel.deleteMany();
-    return res
-      .status(200)
-      .json({ message: "all cache objects deleted"});
+    return res.status(200).json({ message: "all cache objects deleted" });
   } catch (err) {
     console.error(err);
     return res.status(500).send(err.message);
   }
-})
+});
 const cacheRouter = router;
 export default cacheRouter;
