@@ -33,6 +33,24 @@ router.post("/", async (req, res) => {
     return res.status(500).send(err.message);
   }
 });
+router.put("/:id", async (req, res) => {
+  try {
+    if (!req?.body?.text) {
+      return res.status(400).json({ message: "text is required" });
+    }
+    let cacheObject = await cacheModel.findById(req.params.id);
+    if (!cacheObject) {
+      return res.status(400).json({ message: "cache object not found" });
+    }
+    cacheObject.text = req.body.text;
+    cacheObject.expire = Date.now() + appConf.TTLAmount;
+    await cacheObject.save();
+    return res.json(cacheObject);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err.message);
+  }
+});
 
 const cacheRouter = router;
 export default cacheRouter;
