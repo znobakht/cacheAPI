@@ -14,6 +14,7 @@ router.get("/:id", async (req, res) => {
   try {
     let cacheObject = await cacheModel.findById(req.params.id);
     if (cacheObject) {
+      console.log('cacheHit')
       cacheObject.expire = Date.now() + appConf.TTLAmount;
       await cacheObject.save();
       return res.json(cacheObject);
