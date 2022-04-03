@@ -19,6 +19,7 @@ router.get("/:id", async (req, res) => {
       return res.json(cacheObject);
     }
 
+    console.log('cacheMiss');
     const text = (Math.random() + 1).toString(36).substring(7);
     cacheObject = await cacheModel.create({ _id: req.params.id, text });
     return res.json(cacheObject);
