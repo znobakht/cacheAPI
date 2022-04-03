@@ -63,6 +63,16 @@ router.delete("/:id", async (req, res) => {
     return res.status(500).send(err.message);
   }
 });
-
+router.get("/", async (req, res) =>{
+  try {
+    const objects = await cacheModel.find();
+    return res
+      .status(200)
+      .json(objects);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err.message);
+  }
+})
 const cacheRouter = router;
 export default cacheRouter;
