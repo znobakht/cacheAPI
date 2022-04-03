@@ -74,5 +74,16 @@ router.get("/", async (req, res) =>{
     return res.status(500).send(err.message);
   }
 })
+router.delete("/", async (req, res) =>{
+  try {
+    await cacheModel.deleteMany();
+    return res
+      .status(200)
+      .json({ message: "all cache objects deleted"});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err.message);
+  }
+})
 const cacheRouter = router;
 export default cacheRouter;
