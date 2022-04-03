@@ -13,7 +13,7 @@ router.get("/:id", async (req, res) => {
     }
 
     const text = (Math.random() + 1).toString(36).substring(7);
-    cacheObject = await cacheModel.create({ _id: req.params.id ,text });
+    cacheObject = await cacheModel.create({ _id: req.params.id, text });
     return res.json(cacheObject);
   } catch (err) {
     console.error(err);
@@ -46,6 +46,18 @@ router.put("/:id", async (req, res) => {
     cacheObject.expire = Date.now() + appConf.TTLAmount;
     await cacheObject.save();
     return res.json(cacheObject);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err.message);
+  }
+});
+router.delete("/:id", async (req, res) => {
+  try {
+    let cacheObject = await cacheModel.findByIdAndDelete(req.params.id);
+    if (!cacheObject) {
+      return res.status(400).json({ message: "cache object not found" });
+    }
+    return res.status(200).json({ message: "cache object deleted", cacheObject });
   } catch (err) {
     console.error(err);
     return res.status(500).send(err.message);
