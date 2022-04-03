@@ -1,4 +1,5 @@
 import {Document, Schema, model} from "mongoose";
+import {appConf} from "../config/app"
 interface cacheInterface extends Document {
   text: string;
   expire: Date;
@@ -12,7 +13,7 @@ const cacheSchema = new Schema<cacheInterface>({
   expire: {
     type: Date,
     default: Date.now,
-    expires: 60,
+    expires: appConf.TTLAmount,
   },
 });
 
